@@ -1,0 +1,5 @@
+nicegui
+httpx
+bcrypt
+fastapi
+starlette
