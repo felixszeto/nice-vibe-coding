@@ -373,7 +373,7 @@ def app_store_page(request: Request):
                         with ui.column().classes('w-1/3'):
                             with ui.element('div').classes('relative aspect-square cursor-pointer overflow-hidden rounded-lg').on('click', lambda u=app_data['live_version_uuid']: ui.navigate.to(f'/app/{u}')):
                                 template_html = app_data['app_template_html'] or f'<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">{T("no_preview_available")}</div>'
-                                ui.html(f'<div style="width:100%; height:100%; pointer-events:none; overflow: hidden;"><iframe srcdoc="{html.escape(template_html)}" style="width:200%; height:200%; border:none; transform: scale(0.5); transform-origin: 0 0;"></iframe></div>').classes('w-full h-full')
+                                ui.html(f'<div style="width:100%; height:100%; pointer-events:none; overflow: hidden;"><iframe srcdoc="{html.escape(template_html)}" style="width:200%; height:200%; border:none; transform: scale(0.5); transform-origin: 0 0;"></iframe></div>', sanitize=False).classes('w-full h-full')
 
                         # Right Column: Name and Categories
                         with ui.column().classes('w-2/3 pr-12'): # Add padding to avoid overlap with shield icon
@@ -436,7 +436,7 @@ def my_apps_page(request: Request):
                     ribbon_info = STATUS_RIBBONS.get(status)
                     if ribbon_info:
                         text, color_class = ribbon_info
-                        ui.html(f'<div class="absolute top-2 right-2 px-2 py-1 text-white text-xs font-bold rounded z-10 {color_class} shadow-md">{T(text)}</div>')
+                        ui.html(f'<div class="absolute top-2 right-2 px-2 py-1 text-white text-xs font-bold rounded z-10 {color_class} shadow-md">{T(text)}</div>', sanitize=False)
 
                     preview_status, _ = database.get_application_preview_status(app_data['session_id']) or (0, 0)
                     
@@ -451,7 +451,7 @@ def my_apps_page(request: Request):
                         else: # None, Pending, In Progress or other states
                             preview_content = f'<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">{T("no_preview_available")}</div>'
                         
-                        ui.html(f'<iframe srcdoc="{html.escape(preview_content)}" class="w-full h-full border-none aspect-square rounded-3xl overflow-hidden"></iframe>').classes('w-full')
+                        ui.html(f'<iframe srcdoc="{html.escape(preview_content)}" class="w-full h-full border-none aspect-square rounded-3xl overflow-hidden"></iframe>', sanitize=False).classes('w-full')
 
                         # Loading overlay
                         if is_loading:
@@ -676,7 +676,7 @@ async def main_page(session_id: str, request: Request):
             publish_button_in_dialog.set_visibility(False)
             cancel_submission_button.set_visibility(True)
             app_name_input.set_visibility(False)
-            confirmation_label.set_content(T('confirm_cancel_submission_text', name=f'<b>{app_name}</b>'))
+            confirmation_label.set_content(T('confirm_cancel_submission_text', name=f'<b>{html.escape(app_name)}</b>'))
             confirmation_label.set_visibility(True)
 
         elif status == 2: # Approved
@@ -684,7 +684,7 @@ async def main_page(session_id: str, request: Request):
             publish_button_in_dialog.set_visibility(False)
             go_live_button.set_visibility(True)
             app_name_input.set_visibility(False)
-            confirmation_label.set_content(T('confirm_go_live_text', name=f'<b>{app_name}</b>'))
+            confirmation_label.set_content(T('confirm_go_live_text', name=f'<b>{html.escape(app_name)}</b>'))
             confirmation_label.set_visibility(True)
 
         elif status == 4: # Published
@@ -692,12 +692,12 @@ async def main_page(session_id: str, request: Request):
             publish_button_in_dialog.set_visibility(False)
             unpublish_button_in_dialog.set_visibility(True)
             app_name_input.set_visibility(False)
-            confirmation_label.set_content(T('confirm_unpublish_text', name=f'<b>{app_name}</b>'))
+            confirmation_label.set_content(T('confirm_unpublish_text', name=f'<b>{html.escape(app_name)}</b>'))
             confirmation_label.set_visibility(True)
         
         publish_dialog.open()
 
-    preview_frame = ui.html(f'<iframe src="about:blank" class="w-full h-full"></iframe>').classes('w-full h-full')
+    preview_frame = ui.html(f'<iframe src="about:blank" class="w-full h-full"></iframe>', sanitize=False).classes('w-full h-full')
 
     # Bottom footer (input bar) removed; input will be provided inside the Assistant floating panel.
 
@@ -785,7 +785,7 @@ async def main_page(session_id: str, request: Request):
         with ui.button(icon='smart_toy', on_click=lambda: toggle_assistant(None)) \
                 .props('fab round color=black aria-label="Assistant"').classes('fab-robot shadow-2xl hover:shadow-3xl') as assistant_fab:
             ui.tooltip(T('conversation'))
-        fab_badge = ui.html('<div class="fab-badge" style="display:none" aria-label="unread">0</div>')
+        fab_badge = ui.html('<div class="fab-badge" style="display:none" aria-label="unread">0</div>', sanitize=False)
 
     # Assistant panel shell
     assistant_panel = ui.element('div').classes('assistant-panel assistant-anim')
@@ -859,7 +859,7 @@ async def main_page(session_id: str, request: Request):
         with ui.element('div').classes('assistant-content'):
             # Message list with ARIA live region for polite announcements
             chat_area = ui.scroll_area().classes('assistant-messages').props('aria-live="polite" aria-atomic="false" role="log"')
-            live_region = ui.html('<div class="sr-only" aria-live="polite" aria-atomic="true"></div>')
+            live_region = ui.html('<div class="sr-only" aria-live="polite" aria-atomic="true"></div>', sanitize=False)
 
             with ui.element('div').classes('assistant-input'):
                 user_input = ui.textarea(placeholder=T('input_placeholder')) \
@@ -999,7 +999,7 @@ async def main_page(session_id: str, request: Request):
     with ui.dialog() as publish_dialog:
         with ui.card().classes('w-[90vw] max-w-lg rounded-lg shadow-xl'):
             dialog_title = ui.label().classes('text-lg font-bold')
-            confirmation_label = ui.html().classes('mt-4 text-base')
+            confirmation_label = ui.html(sanitize=False).classes('mt-4 text-base')
             app_name_input = ui.input(label=T('app_name_label')).props('outlined dense rounded-lg').classes('w-full mt-4')
             with ui.row().classes('w-full justify-end gap-2 mt-6') as button_row:
                 unpublish_button_in_dialog = ui.button(T('unpublish'), on_click=lambda: handle_unpublish()).props('flat dense').classes('text-black hover:bg-gray-200 rounded-lg')
@@ -1047,7 +1047,7 @@ async def main_page(session_id: str, request: Request):
 
     with ui.dialog().props('maximized no-padding') as code_dialog:
         with ui.card().classes('w-full h-full flex flex-col p-0 relative'):
-            ui.html('<div id="codemirror_editor_area" style="height: 100%;"></div>').classes('w-full h-full pb-16')
+            ui.html('<div id="codemirror_editor_area" style="height: 100%;"></div>', sanitize=False).classes('w-full h-full pb-16')
             with ui.row().classes('w-full p-3 bg-gray-100 border-t justify-end gap-2 absolute bottom-0 left-0 right-0 h-16'):
                 ui.button(T('cancel'), on_click=code_dialog.close).props('flat dense').classes('text-black')
                 ui.button(T('save_changes'), on_click=lambda: save_manual_edit()).props('dense').classes('bg-black text-white')
@@ -1224,7 +1224,7 @@ async def main_page(session_id: str, request: Request):
         with chat_area:
             ui.chat_message(prompt_text, name=T('chat_you'), sent=True)
             with ui.chat_message(name=T('chat_ai'), sent=False):
-                output_container = ui.html(T('ai_thinking'))
+                output_container = ui.html(T('ai_thinking'), sanitize=False)
 
         task = asyncio.create_task(_run_ai_generation_task(prompt_text, output_container, chat_area))
         state['ai_call_task'] = task
@@ -1439,7 +1439,7 @@ async def main_page(session_id: str, request: Request):
                     think_text, html_content = parse_ai_response(raw_response)
                     with ui.chat_message(name=T('chat_ai'), sent=False):
                         if think_text:
-                            ui.html(f'<pre style="white-space: pre-wrap; word-break: break-word;">{html.escape(think_text)}</pre>')
+                            ui.html(f'<pre style="white-space: pre-wrap; word-break: break-word;">{html.escape(think_text)}</pre>', sanitize=False)
                         
                         # Also add a confirmation that a version was generated, if HTML was produced
                         if html_content:
