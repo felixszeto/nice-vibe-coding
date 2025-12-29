@@ -445,7 +445,7 @@ def create_management_pages():
                 with ui.row().classes('w-full p-4 gap-4 overflow-auto h-90'):
                     with ui.column().classes('w-full'):
                         ui.label(T('app_info')).classes('text-lg font-semibold mb-2')
-                        info_table_container = ui.html().classes('w-full overflow-auto border rounded p-2 bg-gray-50')
+                        info_table_container = ui.html(sanitize=False).classes('w-full overflow-auto border rounded p-2 bg-gray-50')
                         
                         ui.label(T('review_actions')).classes('text-lg font-semibold mt-4 mb-2')
                         review_comments = ui.textarea(T('review_comments')).props('filled autogrow').classes('w-full')
@@ -457,7 +457,7 @@ def create_management_pages():
                         report_button = ui.button(T('generate_risk_report'), on_click=lambda: generate_report(current_app_info.get('latest_submitted_version_uuid'))).classes('text-white bg-black')
                         
                         # Area to display the report results
-                        report_display_area = ui.html().classes('w-full border rounded p-2 bg-gray-50 overflow-auto')
+                        report_display_area = ui.html(sanitize=False).classes('w-full border rounded p-2 bg-gray-50 overflow-auto')
 
                 ui.separator()
                 
